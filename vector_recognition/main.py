@@ -14,13 +14,25 @@ def count_holes(region):
     labeled = label(new_image)
     return np.max(labeled) - 1
 
+def count_lines(region):
+    shape =region.image.shape
+    image = region.image
+    vlines = (np.sum(image,0)/shape[0]==1),sum()
+    hlines = (np.sum(image,1)/shape[1]==1),sum()
+    return vlines, hlines
+
 def extractor(region):
     cy, cx = region.centroid_local
     cy /= region.image.shape[0]
     cx /= region.image.shape[1]
     perimeter = region.perimeter / region.image.size
     holes = count_holes(region)
-    return np.array([region.area/region.image.size, cx, cy, perimeter, holes])
+    v, h =count_lines(region)
+    v /=region.image.shape[1]
+    h /=region.image.shape[0]
+    eccentricity=region.eccentricity
+    aspect =region.image.shape[0]/region.image.shape[1]
+    return np.array([region.area/region.image.size, cx, cy, perimeter, holes, v, h,eccentricity,aspect])
 
 def classificator(region, templates):
     features = extractor(region)
